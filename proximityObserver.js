@@ -2,18 +2,27 @@
 "use strict";
 
 import * as RNEP from "@estimote/react-native-proximity";
+import React from 'react-native'
 
+class ProximityObserver extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+}
+
+let atLesesalen = false;
 const startProximityObserver = () => {
 
   // generate Estimote Cloud credentials for your app at:
   // https://cloud.estimote.com/#/apps/add/your-own-app
-  const ESTIMOTE_APP_ID = "<#APP_ID#>";
-  const ESTIMOTE_APP_TOKEN = "<#APP_TOKEN#>";
+  const ESTIMOTE_APP_ID = "lesesalen-dq8";
+  const ESTIMOTE_APP_TOKEN = "12c6eaa2f46806b7468ee83a11eada95";
 
   // will trigger when the user is within ~ 5 m of any beacon with tag "lobby"
   // you can add tags to your beacons on https://cloud.estimote.com, in Beacon Settings
-  const zone1 = new RNEP.ProximityZone(5, "lobby");
+  const zone1 = new RNEP.ProximityZone(1, "Lesesalen");
   zone1.onEnterAction = context => {
+    atLesesalen = true
     // context properties are:
     // - attachments: all the key-value attachments assigned in Estimote Cloud to the beacon that triggered the action
     // - tag: the tag used when defining the zone, repeated here for convenience
@@ -21,6 +30,7 @@ const startProximityObserver = () => {
     console.log("zone1 onEnter", context);
   };
   zone1.onExitAction = context => {
+    atLesesalen = false
     console.log("zone1 onExit", context);
   };
   zone1.onChangeAction = contexts => {
@@ -113,4 +123,4 @@ const startProximityObserver = () => {
 
 const stopProximityObserver = () => { RNEP.proximityObserver.stopObservingZones(); };
 
-export {startProximityObserver, stopProximityObserver};
+export {startProximityObserver, stopProximityObserver };
