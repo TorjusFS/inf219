@@ -5,8 +5,10 @@
  * @format
  * @flow
  */
+/*
 import { atLesesalen } from './proximityObserver'
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import firestore from '@react-native-firebase/firestore'
 import {
   SafeAreaView,
   StyleSheet,
@@ -24,31 +26,30 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-class App extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      isOnLesesalen: false
-    }
-  }
-  
-  componentWillUpdate() {
-    this.setState({
-      isOnLesesalen: atLesesalen
-    })
-    console.log("Update " + this.state.isOnLesesalen)
-  }
-  
 
-  render() {
-    if (this.state.isOnLesesalen) {
-      return (<View backgroundColor="blue" style={{flex: 1}}> <Text>HALLO</Text></View>)
-    }
-    else {
-      return (<View backgroundColor="red" style={{flex: 1}}><Text>YOYOYOYO</Text></View>)
-    }
-  }
-};
+
+
+
+
+const App = (props) => {
+ 
+ 
+console.log("test")
+ 
+  // @flow
+"use strict";
+ 
+const [onLesesalen, setOnLesesalen] = useState(false);
+const [localValue, localValueSet] = useState(false);
+
+ 
+ 
+ 
+  const bgColor = onLesesalen ? 'blue' : 'red';
+  const txt = onLesesalen ? 'PÅ' : 'UTE;'
+ 
+  return <View backgroundColor={bgColor} style={{flex: 1}}><Text>{txt}</Text></View>
+}
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -76,5 +77,52 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
+
+export default App;
+
+*/
+
+import React, { useState } from 'react';
+import { ScrollView, Text } from 'react-native';
+
+import firestore from '@react-native-firebase/firestore';
+import { Appbar, TextInput, Button } from 'react-native-paper';
+
+function App() {
+  const [ todo, setTodo ] = useState('');
+  const ref = firestore().collection('users');
+  const [atLesesalen, setLesesalState] = useState(false)
+  
+  let doc = ref.doc('Torjus');
+
+  let observer = doc.onSnapshot(docSnapshot => {
+    console.log(`Received doc snapshot: ${docSnapshot.get('atLesesalen')}`);
+    setLesesalState(docSnapshot.get('atLesesalen'))
+  }, err => {
+    console.log(`Encountered error: ${err}`);
+  });
+  async function addTodo() {
+    await ref.add({
+      title: todo,
+      complete: false,
+    });
+    setTodo('');
+  }
+
+  const clr = atLesesalen ? 'blue' : 'red'
+  console.log(clr)
+  return (
+    <>
+      <Appbar>
+        <Appbar.Content title={'TODOs List'} />
+      </Appbar>
+      <ScrollView style={{ flex: 1, backgroundColor: clr }}>
+        <Text>List of TODOs!</Text>
+      </ScrollView>
+      <TextInput label={'New Todo'} value={todo} onChangeText={setTodo} />
+      <Button onPress={() => addTodo()}>Add TODO</Button>
+    </>
+  );
+}
 
 export default App;

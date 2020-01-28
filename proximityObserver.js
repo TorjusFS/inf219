@@ -2,16 +2,20 @@
 "use strict";
 
 import * as RNEP from "@estimote/react-native-proximity";
-import React from 'react-native'
+import React, { useState } from 'react-native'
+import firestore from '@react-native-firebase/firestore';
 
-class ProximityObserver extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-}
 
-let atLesesalen = false;
+
 const startProximityObserver = () => {
+
+  const ref = firestore().collection('users').doc('Torjus');
+
+  async function addTodo(atLesesalen) {
+    await ref.set({
+      atLesesalen: atLesesalen
+    });
+  }
 
   // generate Estimote Cloud credentials for your app at:
   // https://cloud.estimote.com/#/apps/add/your-own-app
@@ -22,15 +26,16 @@ const startProximityObserver = () => {
   // you can add tags to your beacons on https://cloud.estimote.com, in Beacon Settings
   const zone1 = new RNEP.ProximityZone(1, "Lesesalen");
   zone1.onEnterAction = context => {
-    atLesesalen = true
+    console.log("zone1 onEnter", context);
+
+    addTodo(true);
     // context properties are:
     // - attachments: all the key-value attachments assigned in Estimote Cloud to the beacon that triggered the action
     // - tag: the tag used when defining the zone, repeated here for convenience
     // - deviceIdentifier: Estimote-specific device identifier of the beacon that triggered the action
-    console.log("zone1 onEnter", context);
   };
   zone1.onExitAction = context => {
-    atLesesalen = false
+    addTodo(false)
     console.log("zone1 onExit", context);
   };
   zone1.onChangeAction = contexts => {

@@ -9,8 +9,12 @@
   },
   "dependencies": {
     "@estimote/react-native-proximity": "^0.6.0",
+    "@react-native-firebase/app": "^6.2.0",
+    "@react-native-firebase/firestore": "^6.2.0",
     "react": "16.8.6",
-    "react-native": "0.61.5"
+    "react-native": "0.61.5",
+    "react-native-paper": "^3.5.1",
+    "react-native-vector-icons": "^6.6.0"
   },
   "devDependencies": {
     "@babel/core": "7.5.4",
