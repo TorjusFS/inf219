@@ -2,37 +2,28 @@
 "use strict";
 
 import * as RNEP from "@estimote/react-native-proximity";
-import React, { useState } from 'react-native'
 import firestore from '@react-native-firebase/firestore';
 
 
 
 const startProximityObserver = () => {
 
-  const ref = firestore().collection('users').doc('Torjus');
+  const ref = firestore().collection('users').doc('Simen');
 
   async function addTodo(atLesesalen) {
-    await ref.set({
+    await ref.update({
       atLesesalen: atLesesalen
     });
   }
 
-  // generate Estimote Cloud credentials for your app at:
-  // https://cloud.estimote.com/#/apps/add/your-own-app
   const ESTIMOTE_APP_ID = "lesesalen-dq8";
   const ESTIMOTE_APP_TOKEN = "12c6eaa2f46806b7468ee83a11eada95";
 
-  // will trigger when the user is within ~ 5 m of any beacon with tag "lobby"
-  // you can add tags to your beacons on https://cloud.estimote.com, in Beacon Settings
   const zone1 = new RNEP.ProximityZone(1, "Lesesalen");
   zone1.onEnterAction = context => {
     console.log("zone1 onEnter", context);
 
     addTodo(true);
-    // context properties are:
-    // - attachments: all the key-value attachments assigned in Estimote Cloud to the beacon that triggered the action
-    // - tag: the tag used when defining the zone, repeated here for convenience
-    // - deviceIdentifier: Estimote-specific device identifier of the beacon that triggered the action
   };
   zone1.onExitAction = context => {
     addTodo(false)
