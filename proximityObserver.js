@@ -19,8 +19,8 @@ const startProximityObserver = () => {
 
   // generate Estimote Cloud credentials for your app at:
   // https://cloud.estimote.com/#/apps/add/your-own-app
-  const ESTIMOTE_APP_ID = "lesesalen-dq8";
-  const ESTIMOTE_APP_TOKEN = "12c6eaa2f46806b7468ee83a11eada95";
+  const ESTIMOTE_APP_ID = "lesesalen-ohm";
+  const ESTIMOTE_APP_TOKEN = "2f55946a851ac15a35fd828e0fd111e7";
 
   // will trigger when the user is within ~ 5 m of any beacon with tag "lobby"
   // you can add tags to your beacons on https://cloud.estimote.com, in Beacon Settings
