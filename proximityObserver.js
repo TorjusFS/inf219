@@ -2,7 +2,6 @@
 "use strict";
 
 import * as RNEP from "@estimote/react-native-proximity";
-import React, { useState } from 'react-native'
 import firestore from '@react-native-firebase/firestore';
 
 
@@ -12,7 +11,7 @@ const startProximityObserver = () => {
   const ref = firestore().collection('users').doc('Torjus');
 
   async function addTodo(atLesesalen) {
-    await ref.set({
+    await ref.update({
       atLesesalen: atLesesalen
     });
   }
@@ -22,17 +21,11 @@ const startProximityObserver = () => {
   const ESTIMOTE_APP_ID = "lesesalen-ohm";
   const ESTIMOTE_APP_TOKEN = "2f55946a851ac15a35fd828e0fd111e7";
 
-  // will trigger when the user is within ~ 5 m of any beacon with tag "lobby"
-  // you can add tags to your beacons on https://cloud.estimote.com, in Beacon Settings
-  const zone1 = new RNEP.ProximityZone(1, "Lesesalen");
+  const zone1 = new RNEP.ProximityZone(2.7, "Lesesalen");
   zone1.onEnterAction = context => {
     console.log("zone1 onEnter", context);
 
     addTodo(true);
-    // context properties are:
-    // - attachments: all the key-value attachments assigned in Estimote Cloud to the beacon that triggered the action
-    // - tag: the tag used when defining the zone, repeated here for convenience
-    // - deviceIdentifier: Estimote-specific device identifier of the beacon that triggered the action
   };
   zone1.onExitAction = context => {
     addTodo(false)
@@ -95,15 +88,16 @@ const startProximityObserver = () => {
           ESTIMOTE_APP_ID,
           ESTIMOTE_APP_TOKEN
         );
-
+        
         const config = {
           // modern versions of Android require a notification informing the user that the app is active in the background
           // if you don't need proximity observation to work in the background, you can omit the entire `notification` config
           //
           // see also: "Background support" section in the README
+          
           notification: {
-            title: "Exploration mode is on",
-            text: "We'll notify you when you're next to something interesting.",
+            title: "Your time:",
+            text: "lol",
             //icon: 'my_drawable', // if omitted, will default to the app icon (i.e., mipmap/ic_launcher)
 
             // in apps targeting Android API 26, notifications must specify a channel
@@ -114,9 +108,11 @@ const startProximityObserver = () => {
             }
           }
         };
+        console.log(config)
 
         RNEP.proximityObserver.initialize(credentials, config);
-        RNEP.proximityObserver.startObservingZones([zone1, zone2]);
+        RNEP.proximityObserver.startObservingZones([zone1]);
+        
       }
     },
     error => {
@@ -128,4 +124,4 @@ const startProximityObserver = () => {
 
 const stopProximityObserver = () => { RNEP.proximityObserver.stopObservingZones(); };
 
-export {startProximityObserver, stopProximityObserver };
+export { startProximityObserver, stopProximityObserver };

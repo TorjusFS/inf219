@@ -167,10 +167,13 @@ android {
 }
 
 dependencies {
+    
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'com.google.firebase:firebase-analytics:17.2.0'
-
+    implementation 'com.estimote:scanning-plugin:0.25.4'    
+    implementation 'com.estimote:proximity-sdk:1.0.5'
+    implementation 'com.estimote:mustard:0.2.1'
     // JSC from node_modules
     if (useIntlJsc) {
         implementation 'org.webkit:android-jsc-intl:+'
