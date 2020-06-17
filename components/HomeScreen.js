@@ -1,98 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Text, Button, View } from 'react-native';
-
+import { TextInput, ScrollView, Text, Button, View, StyleSheet, Animated, Dimensions, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { Appbar } from 'react-native-paper';
 
-
-
+import GoalBar from './GoalBar'
+import TimeGraph from './TimeGraph'
+import Loading from './Loading'
 
 function HomeScreen() {
   const [atLesesalen, setLesesalState] = useState(false)
   const [timeToday, setTime] = useState(0)
   const [users, setUsers] = useState(0)
+  const [goal, setGoal] = useState(0)
+  const [tempGoal, setTempGoal] = useState(0)
+  const [graphdata, setgraphdata] = useState([])
 
   const ref = firestore().collection('users').doc('Torjus');
 
   async function refresh() {
-    console.log("test")
+    setGoal(tempGoal)
     await ref.update({
-      refresh: true
+      refresh: true,
+      goal: tempGoal
     });
   }
 
+
+
   useEffect(() => {
 
-    let users = firestore().collection('users').get().then(snapshot => {
+    firestore().collection('users').get().then(snapshot => {
       let userList = []
       snapshot.forEach(user => {
         userList.push(user.data())
       })
-      console.log(userList)
       setUsers(userList)
+      console.log(userList[5])
+      setgraphdata(userList[5].past30days)
+
     }).catch(err => {
       console.log(err)
     })
 
-    const arrayOfObj = Object.entries(users).map((e) => ( { [e[0]]: e[1] } ));
 
-    const doc = firestore().collection('users').doc('Torjus');
-    
-    
-    doc.onSnapshot(docSnapshot => {
-      console.log(`Received doc snapshot: ${docSnapshot.get('atLesesalen')}`);
+    const unsub = ref.onSnapshot(docSnapshot => {
       setLesesalState(docSnapshot.get('atLesesalen'))
       setTime(docSnapshot.get('time'))
+      setGoal(docSnapshot.get('goal'))
 
     }, err => {
       console.log(`Encountered error: ${err}`);
     });
+
+    return () => {
+      unsub();
+    }
   }, []);
 
-  const clr = atLesesalen ? 'white' : 'black'
-  const txtclr = atLesesalen ? 'black' : 'white'
   const atLesesalenTxt = atLesesalen ? 'at' : 'not at';
 
-  const props = {
-        data: {users},
-        sortBy: 'time',
-        labelBy: 'username',
-        onRowPress: (item, index) => {
-          this.alert(item.name + " clicked", item.score + " points, wow!");
-        }
-  }
-
-  console.log(clr)
-  if (users != null) {
-  return (
-    <>
-      <Appbar>
-        <Appbar.Content title={'My app'} />
-      </Appbar>
-      <View style={{ flex: 1, backgroundColor: clr }}>
-        <Text style={{ fontSize: 60, textAlign: 'center', color: txtclr }}>Time Today!</Text>
-        <Text style={{ fontSize: 50, textAlign: 'center', color: txtclr }}>{Math.floor(timeToday / 60)}h {timeToday % 60}</Text>
-        <Text style={{ fontSize: 30, textAlign: 'center', color: txtclr, paddingTop: 30 }}>You are {atLesesalenTxt} Lesesalen</Text>
-        <Button onPress={() => refresh()} title="Press me">wiowind</Button>
-      </View>
-    </>
-  );
-  }
-  else {
+  if (users != null && (goal || goal == 0)) {
+    console.log("Line 57 " + Array.isArray(graphdata))
     return (
       <>
-        <Appbar>
-          <Appbar.Content title={'My app'} />
+        <Appbar style={{ backgroundColor: "orange" }}>
+          <Appbar.Content color={"white"} title={'Lesesalen the App'} />
+          <Button title="Set Goal" color="inherit"></Button>
         </Appbar>
-        <View style={{ flex: 1, backgroundColor: clr }}>
-          <Text style={{ fontSize: 60, textAlign: 'center', color: txtclr }}>Time Today!</Text>
-          <Text style={{ fontSize: 50, textAlign: 'center', color: txtclr }}>{Math.floor(timeToday / 60)}h {timeToday % 60}</Text>
-          <Text style={{ fontSize: 30, textAlign: 'center', color: txtclr, paddingTop: 30 }}>You are {atLesesalenTxt} Lesesalen</Text>
-          <Button onPress={() => refresh()} title="Press me">wiowind</Button>
+
+        <View style={{ flex: 1, flexDirection: "column", backgroundColor: "#2D3245" }}>
+          <Text style={{ fontSize: 20, color: "white" }}>You are {atLesesalenTxt} Lesesalen</Text>
+          <Text style={{ fontSize: 20, color: "white" }}>Your Time: {Math.floor(timeToday / 60)}h {timeToday % 60}min</Text>
+          <GoalBar goal={goal} timeToday={timeToday}></GoalBar>
+          <TimeGraph data={graphdata} />
         </View>
       </>
     );
   }
+  else {
+    return (
+      <Loading />
+    );
+  }
 }
+
+
+const styles = StyleSheet.create({
+  progressBar: {
+    color: 'orange'
+  }
+})
 
 export default HomeScreen;
